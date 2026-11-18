@@ -1,0 +1,37 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract project
+        run: |
+          unzip -q egg_fishing_macro_android_v0.1_source.zip -d source
+
+      - name: Build APK
+        run: |
+          gradle -p source/egg_fishing_macro_android assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: egg-fishing-macro-apk
+          path: source/egg_fishing_macro_android/app/build/outputs/apk/debug/app-debug.apk
